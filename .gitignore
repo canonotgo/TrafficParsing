@@ -1,0 +1,111 @@
+# Byte-compiled files
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+
+# Distribution and packaging
+*.egg
+*.egg-info
+dist/
+build/
+eggs/
+*.egg-info/
+*.manifest
+*.spec
+
+# Virtual environment
+venv/
+ENV/
+env/
+.venv/
+.env/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*.sublime-workspace
+*.sublime-project
+*.kate-swp
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# MyPy
+.mypy_cache/
+
+# Pytest
+.cache/
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+
+# Coverage reports
+htmlcov/
+
+# Local development files
+local_settings.py
+db.sqlite3
+
+# MacOS Finder
+.DS_Store
+
+# Windows thumbnail cache
+Thumbs.db
+
+# Logs
+*.log
+
+# Environment variables
+.env
+
+# Python type checking
+.pytype/
+
+# pylint
+pylint-report.txt
+pylint-global.txt
+
+# Django
+*.log
+*.pot
+*.pyc
+__pycache__/
+db.sqlite3
+*.pyo
+*.pyd
+media/
+static/
+
+# Flask
+instance/
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+instance/
+.env
+
+# Data files
+*.csv
+*.dat
+*.db
+*.sqlite3
+
+# Security
+*.pem
+*.key
+*.csr
+*.crt
+
+# Misc
+*.bak
+*.tmp
+*.swp
+*.swo
+
+# Jupyter
+*.ipynb
