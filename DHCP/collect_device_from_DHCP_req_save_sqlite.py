@@ -66,6 +66,7 @@ def setup_database():
         CREATE TABLE IF NOT EXISTS dhcp_records (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             timestamp TEXT,
+            method TEXT,
             Emac TEXT,
             Umac TEXT,
             transaction_id INTEGER,
@@ -79,16 +80,16 @@ def setup_database():
     conn.commit()
     conn.close()
 
-def insert_record(Emac, Umac, transaction_id, hostname, requested_ip, fqdn, option_list_str, parameter_list_str):
+def insert_record(method, Emac, Umac, transaction_id, hostname, requested_ip, fqdn, option_list_str, parameter_list_str):
     """Insert a record into the database."""
     conn = sqlite3.connect('dhcp_info.db')
     cursor = conn.cursor()
     timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
     cursor.execute('''
-        INSERT INTO dhcp_records (timestamp, Emac, Umac, transaction_id, hostname, requested_ip, fqdn, option_list, parameter_list)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    ''', (timestamp, Emac, Umac, transaction_id, hostname, requested_ip, fqdn, option_list_str, parameter_list_str))
+        INSERT INTO dhcp_records (timestamp, method, Emac, Umac, transaction_id, hostname, requested_ip, fqdn, option_list, parameter_list)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ''', (timestamp, method, Emac, Umac, transaction_id, hostname, requested_ip, fqdn, option_list_str, parameter_list_str))
     conn.commit()
     conn.close()
 
@@ -181,17 +182,17 @@ def process_dhcp_packet(dhcp, packet, message_type_name):
     print("Option List:", option_list_str)
     print("Parameter List:", parameter_list_str)
 
-    insert_record(Ether_mac_address, dhcp_mac_address, transaction_id, hostname, requested_ip, fqdn, option_list_str, parameter_list_str)
+    insert_record(message_type_name, Ether_mac_address, dhcp_mac_address, transaction_id, hostname, requested_ip, fqdn, option_list_str, parameter_list_str)
 
     print(f"--------------------end----------------------")
 
 def process_dhcp_discover(dhcp, packet):
     """Process DHCP Discover packet."""
-    process_dhcp_packet(dhcp, packet, "DHCP DISCOVER")
+    process_dhcp_packet(dhcp, packet, "DISCOVER")
 
 def process_dhcp_request(dhcp, packet):
     """Process DHCP Request packet."""
-    process_dhcp_packet(dhcp, packet, "DHCP REQUEST")
+    process_dhcp_packet(dhcp, packet, "REQUEST")
 
 def handle_packet(packet):
     """Handle incoming DHCP packets."""
