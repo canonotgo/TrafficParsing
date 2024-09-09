@@ -156,4 +156,5 @@ if __name__ == "__main__":
     print("\tBroadcast address:", BROADCAST_ADDRESS)
     print("\n**************************************************************************************\n")
 
-    sniff(filter="udp and port 67", prn=handle_packet)
+    sniff(filter="udp and port 67", prn=handle_packet, iface=interface_name)
+    # sniff(filter="udp and port 67", prn=handle_packet)
