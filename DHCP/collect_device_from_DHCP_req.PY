@@ -1,4 +1,3 @@
-from __future__ import print_function
 from scapy.all import sniff, Ether, DHCP
 import socket
 import psutil
@@ -37,6 +36,7 @@ OPTION_MAP = {
     'dhcp_message_type': 53,
     'message-type': 53,
     'server_identifier': 54,
+    'server_id': 54,
     'param_req_list': 55,
     'message': 56,
     'max_dhcp_size': 57,
@@ -58,11 +58,11 @@ def get_local_ip_windows():
     s.connect(("119.29.29.29", 53))
     ip_address = s.getsockname()[0]
     s.close()
-    
+
     ip_netmask = None
     interface_name = None
     interfaces = psutil.net_if_addrs()
-    
+
     for interface, addrs in interfaces.items():
         for addr in addrs:
             if addr.family == socket.AF_INET and str(addr.address) == str(ip_address):
@@ -71,7 +71,7 @@ def get_local_ip_windows():
                 break
         if interface_name:
             break
-    
+
     return ip_address, ip_netmask, interface_name
 
 def send(packet):
@@ -94,13 +94,13 @@ def print_dhcp_options(options):
 def process_dhcp_packet(dhcp, packet, message_type_name):
     """Process DHCP packet (Discover or Request)."""
     options = {opt[0]: opt[1] for opt in dhcp.options if isinstance(opt, tuple)}
-    
+
     print(f"------------------------{message_type_name}------------------------")
     print(f"Client MAC Address: {packet[Ether].src}")
     print(f"Transaction ID: {options.get('transaction_id', 'N/A')}")
     print(f"Client IP Address (CIADDR): {options.get('ciaddr', 'N/A')}")
     print(f"Requested IP Address (Requested IP): {options.get('requested_ip_address', 'N/A')}")
-    
+
     print(f"DHCP Options in {message_type_name}:")
     option_list = []
     parameter_list = None
@@ -110,14 +110,16 @@ def process_dhcp_packet(dhcp, packet, message_type_name):
             if option_key == 'end':
                 break
             option_number = OPTION_MAP.get(option_key, 'unknown')
+            if option_key == "client_id":
+                option_value = ':'.join(f'{byte:02x}' for byte in option_value[1:])
             print(f"Option Number: {option_number}, Option Key: {option_key}, Option Value: {option_value}")
             if option_key == "param_req_list":
                 parameter_list = option_value
             option_list.append(option_number)
-    
+
     print("Option List:", option_list)
     print("Parameter List:", parameter_list)
-    
+
     print(f"--------------------CREATED {message_type_name}----------------------")
 
 def process_dhcp_discover(dhcp, packet):
