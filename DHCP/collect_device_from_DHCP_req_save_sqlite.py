@@ -51,6 +51,7 @@ OPTION_MAP = {
     'hostname': 12,
     'fqdn': 81,
     'client_fqdn': 81,
+    'client_FQDN': 81,
     'option_82': 82,
     'end': 255
 }
@@ -70,6 +71,7 @@ def setup_database():
             transaction_id INTEGER,
             hostname TEXT,
             requested_ip TEXT,
+            fqdn Text,
             option_list TEXT,
             parameter_list TEXT    
         )
@@ -77,16 +79,16 @@ def setup_database():
     conn.commit()
     conn.close()
 
-def insert_record(Emac, Umac, transaction_id, hostname, requested_ip, option_list_str, parameter_list_str):
+def insert_record(Emac, Umac, transaction_id, hostname, requested_ip, fqdn, option_list_str, parameter_list_str):
     """Insert a record into the database."""
     conn = sqlite3.connect('dhcp_info.db')
     cursor = conn.cursor()
     timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
     cursor.execute('''
-        INSERT INTO dhcp_records (timestamp, Emac, Umac, transaction_id, hostname, requested_ip, option_list, parameter_list)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    ''', (timestamp, Emac, Umac, transaction_id, hostname, requested_ip, option_list_str, parameter_list_str))
+        INSERT INTO dhcp_records (timestamp, Emac, Umac, transaction_id, hostname, requested_ip, fqdn, option_list, parameter_list)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ''', (timestamp, Emac, Umac, transaction_id, hostname, requested_ip, fqdn, option_list_str, parameter_list_str))
     conn.commit()
     conn.close()
 
@@ -147,7 +149,7 @@ def process_dhcp_packet(dhcp, packet, message_type_name):
 
     print(f"DHCP Options in {message_type_name}:")
     option_list = []
-    hostname = None
+    hostname = fqdn =None
     requested_ip = None
     parameter_list_str = None
     for opt in dhcp.options:
@@ -169,6 +171,8 @@ def process_dhcp_packet(dhcp, packet, message_type_name):
             if option_key == "param_req_list":
                 parameter_list = [str(value) for value in option_value]
                 parameter_list_str = ','.join(parameter_list) if parameter_list else ''
+            if option_key == "client_FQDN":
+                fqdn = option_value
 
             print(f"Option Number: {option_number}, Option Key: {option_key}, Option Value: {option_value}")
             option_list.append(str(option_number))
@@ -177,7 +181,7 @@ def process_dhcp_packet(dhcp, packet, message_type_name):
     print("Option List:", option_list_str)
     print("Parameter List:", parameter_list_str)
 
-    insert_record(Ether_mac_address, dhcp_mac_address, transaction_id, hostname, requested_ip, option_list_str, parameter_list_str)
+    insert_record(Ether_mac_address, dhcp_mac_address, transaction_id, hostname, requested_ip, fqdn, option_list_str, parameter_list_str)
 
     print(f"--------------------end----------------------")
 

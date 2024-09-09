@@ -49,6 +49,7 @@ OPTION_MAP = {
     'hostname': 12,
     'fqdn': 81,
     'client_fqdn': 81,
+    'client_FQDN': 81,
     'option_82': 82,
     'end': 255
 }
