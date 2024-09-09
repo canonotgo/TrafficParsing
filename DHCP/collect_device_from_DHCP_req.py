@@ -1,4 +1,4 @@
-from scapy.all import sniff, Ether, DHCP
+from scapy.all import sniff, Ether, DHCP, BOOTP
 import socket
 import psutil
 
@@ -43,6 +43,7 @@ OPTION_MAP = {
     'renewal_time': 58,
     'rebinding_time': 59,
     'vendor_class_identifier': 60,
+    'vendor_class_id': 60,
     'client_identifier': 61,
     'network_interface_identifier': 62,
     'hostname': 12,
@@ -97,9 +98,14 @@ def process_dhcp_packet(dhcp, packet, message_type_name):
 
     print(f"------------------------{message_type_name}------------------------")
     print(f"Client MAC Address: {packet[Ether].src}")
-    print(f"Transaction ID: {options.get('transaction_id', 'N/A')}")
-    print(f"Client IP Address (CIADDR): {options.get('ciaddr', 'N/A')}")
-    print(f"Requested IP Address (Requested IP): {options.get('requested_ip_address', 'N/A')}")
+    # print(f"Transaction ID: {options.get('transaction_id', 'N/A')}")
+    transaction_id = packet[BOOTP].xid
+    print(f"Transaction ID: {transaction_id}")
+    # print(f"Client IP Address (CIADDR): {options.get('ciaddr', 'N/A')}")
+    client_mac = packet[BOOTP].chaddr[:6]
+    client_mac = ':'.join(f'{byte:02x}' for byte in client_mac[:6])
+    print(f"Client mac address: {client_mac}")
+    print(f"Requested IP Address (Requested IP): {options.get('requested_addr', 'N/A')}")
 
     print(f"DHCP Options in {message_type_name}:")
     option_list = []
@@ -112,6 +118,7 @@ def process_dhcp_packet(dhcp, packet, message_type_name):
             option_number = OPTION_MAP.get(option_key, 'unknown')
             if option_key == "client_id":
                 option_value = ':'.join(f'{byte:02x}' for byte in option_value[1:])
+            option_value = option_value.decode('utf-8') if isinstance(option_value, bytes) else option_value
             print(f"Option Number: {option_number}, Option Key: {option_key}, Option Value: {option_value}")
             if option_key == "param_req_list":
                 parameter_list = option_value
