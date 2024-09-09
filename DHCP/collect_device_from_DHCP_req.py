@@ -97,14 +97,15 @@ def process_dhcp_packet(dhcp, packet, message_type_name):
     options = {opt[0]: opt[1] for opt in dhcp.options if isinstance(opt, tuple)}
 
     print(f"------------------------{message_type_name}------------------------")
-    print(f"Client MAC Address: {packet[Ether].src}")
     # print(f"Transaction ID: {options.get('transaction_id', 'N/A')}")
     transaction_id = packet[BOOTP].xid
     print(f"Transaction ID: {transaction_id}")
+    print(f"Client 2mac Address: {packet[Ether].src}")
     # print(f"Client IP Address (CIADDR): {options.get('ciaddr', 'N/A')}")
     client_mac = packet[BOOTP].chaddr[:6]
     client_mac = ':'.join(f'{byte:02x}' for byte in client_mac[:6])
-    print(f"Client mac address: {client_mac}")
+    
+    print(f"Client 3mac address: {client_mac}")
     print(f"Requested IP Address (Requested IP): {options.get('requested_addr', 'N/A')}")
 
     print(f"DHCP Options in {message_type_name}:")
@@ -127,7 +128,7 @@ def process_dhcp_packet(dhcp, packet, message_type_name):
     print("Option List:", option_list)
     print("Parameter List:", parameter_list)
 
-    print(f"--------------------CREATED {message_type_name}----------------------")
+    print(f"--------------------end----------------------")
 
 def process_dhcp_discover(dhcp, packet):
     """Process DHCP Discover packet."""
